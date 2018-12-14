@@ -11,7 +11,7 @@ from abc import ABCMeta, abstractmethod
 
 import pandas as pd
 import numpy as np
-
+import time
 try:
    import cPickle as pickle
 except:
@@ -142,13 +142,18 @@ class MSBGeneticOptimizerEnv(object):
 
       with mariocontext(self) as env:
          done = True
+         
          for step, action in enumerate(self.chromosomes[max_fitness_ix][0]):
                if done:
                   state = env.reset()
-
+               
                state, reward, done, info = env.step(action)
-
+               
                if render: env.render()
+               if step == 0:
+                  time.sleep(10)
+               
+               
 
 
    def evaluate_chromosome(self, input_tuple):
@@ -169,9 +174,15 @@ class MSBGeneticOptimizerEnv(object):
 
             #take step
             state, reward, done, info = env.step(action)
-
-            if (info[self.fitness_strategy] > best_fitness_step):
-               best_fitness_step = step
+            if(self.fitness_strategy == 'time'):
+               if(info[self.fitness_strategy] == 0):
+                  break
+               else:
+                if((info['x_pos'] / (401 - info[self.fitness_strategy])) + (59.6415)*(info['x_pos']/3161) > best_fitness_step):
+                  best_fitness_step = step
+            else: 
+               if (info[self.fitness_strategy] > best_fitness_step):
+                  best_fitness_step = step
 
             #died or level beat
             if (done or info['flag_get']):
@@ -184,10 +195,15 @@ class MSBGeneticOptimizerEnv(object):
             #display on screen
             if self.render:
                env.render()
-
-         chromosome[1], chromosome[2] = info[self.fitness_strategy], best_fitness_step
-
-         print("chromosome",chromosome_num," done fitness ",self.fitness_strategy ,"= ",info[self.fitness_strategy])
+         if self.fitness_strategy == 'time' :
+            chromosome[1] = (info['x_pos']/(401-info[self.fitness_strategy])) + (59.6415)*((info['x_pos']/3161))
+         else:
+            chromosome[1] = info[self.fitness_strategy]
+         chromosome[2] = best_fitness_step
+         if(self.fitness_strategy == 'time'):
+            print("chromosome",chromosome_num," done fitness ",self.fitness_strategy ,"= ",(info['x_pos']/(401-info[self.fitness_strategy])) + (59.6415)*(info['x_pos']/3161))
+         else:
+            print("chromosome",chromosome_num," done fitness ",self.fitness_strategy ,"= ",info[self.fitness_strategy])
          return chromosome
 
 

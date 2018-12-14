@@ -16,7 +16,7 @@ class EvolutionEnv(MSBGeneticOptimizerEnv):
       """
         
       # elite selection for parent
-      parents = self.select_parents(3, int(self.num_chromosomes/2))
+      parents = self.select_parents(1, int(self.num_chromosomes/2))
       offspring = []
 
       # Crossover
@@ -77,7 +77,7 @@ class EvolutionEnv(MSBGeneticOptimizerEnv):
          parents = []
          total=0
          for i in range(self.num_chromosomes):
-            total=total+self.chromosomes[i][1];
+            total=total+self.chromosomes[i][1]
          s = []
          s.append(0)
          for i in range(self.num_chromosomes):
